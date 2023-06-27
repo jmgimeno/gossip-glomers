@@ -1,9 +1,10 @@
 package uuid
 
-import zio.json.{JsonEncoder, JsonDecoder}
-import zio.{Random, ZIOAppDefault, ZIO}
-import com.bilalfazlani.zioMaelstrom.protocol.*
+import zio.*
+import zio.json.*
+
 import com.bilalfazlani.zioMaelstrom.*
+import com.bilalfazlani.zioMaelstrom.protocol.*
 
 case class Generate(msg_id: MessageId) extends NeedsReply derives JsonDecoder
 
@@ -18,12 +19,15 @@ case class GenerateOk(
 
 object Main extends ZIOAppDefault {
 
-  val generateHandler: ZIO[MaelstromRuntime, Nothing, Unit] =
-    receive[Generate](msg =>
-      Random.nextUUID.flatMap { uuid =>
-        reply(GenerateOk(id = uuid.toString, in_reply_to = msg.msg_id))
-      }
-    )
+  val handler = receive[Generate] { case request =>
+    for {
+      ref       <- ZIO.service[Ref[Int]]
+      generated <- ref.updateAndGet(_ + 1)
+      combinedId = s"${me}_${generated}"
+      _ <- reply(GenerateOk(id = combinedId, in_reply_to = request.msg_id))
+    } yield ()
+  }
 
-  val run = generateHandler.provide(MaelstromRuntime.live)
+  val run = handler.provide(MaelstromRuntime.live, ZLayer(Ref.make(0)))
+
 }
