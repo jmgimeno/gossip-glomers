@@ -7,4 +7,4 @@ else
     DIR=./
 fi
 
-exec java -Xmx256M -cp "$DIR/../target/scala-3.3.0/zio-maelstrom-playground-assembly-0.1.0-SNAPSHOT.jar" "echo.Main"t
+exec java -Xmx256M -cp "$DIR/../target/scala-3.3.0/gossip-glomers-assembly-0.1.0-SNAPSHOT.jar" "echo.Main"
