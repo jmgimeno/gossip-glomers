@@ -2,14 +2,20 @@
 
 Playing with [Gossip Glomers Challenges](https://fly.io/dist-sys/) using [zio-maesltrom](https://zio-maelstrom.bilal-fazlani.com/)
 
-### echo
+### Challenge #1: Echo
 
 ```shell
 ./maelstrom test -w echo --bin ~/Projects-Scala/gossip-glomers/launchers/uuid.sh --node-count 1 --time-limit 10
 ```
 
-### uuid
+### Challenge #2: Unique ID Generation
 
 ```shell
 ./maelstrom test -w unique-ids --bin ~/Projects-Scala/gossip-glomers/launchers/uuid.sh --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition
+```
+
+### Challenge #3a: Single-Node Broadcast
+
+```shell
+./maelstrom test -w broadcast --bin ~/Projects-Scala/gossip-glomers/launchers/broadcastA.sh --node-count 1 --time-limit 20 --rate 10
 ```
