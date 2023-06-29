@@ -35,6 +35,17 @@ case class TopologyOk(in_reply_to: MessageId, `type`: String = "topology_ok")
     extends Sendable,
       Reply derives JsonEncoder
 
+case class State(messages: Set[Int]) {
+  def add(message: Int) = copy(messages = messages + message)
+}
+
+object State {
+  val live     = ZLayer.fromZIO(Ref.make(State(Set.empty)))
+  val messages = ZIO.serviceWithZIO[Ref[State]](_.get.map(_.messages))
+  def add(message: Int) =
+    ZIO.serviceWithZIO[Ref[State]](_.update(_.add(message)))
+}
+
 object MainA extends ZIOAppDefault {
 
   import Incoming.*
@@ -42,14 +53,12 @@ object MainA extends ZIOAppDefault {
   val handler = receive[Incoming] {
     case Broadcast(msg_id, message) =>
       for {
-        ref <- ZIO.service[Ref[Set[Int]]]
-        _   <- ref.update(_ + message)
-        _   <- reply(BroadcastOk(in_reply_to = msg_id))
+        _ <- State.add(message)
+        _ <- reply(BroadcastOk(in_reply_to = msg_id))
       } yield ()
     case Read(msg_id) =>
       for {
-        ref      <- ZIO.service[Ref[Set[Int]]]
-        messages <- ref.get
+        messages <- State.messages
         _        <- reply(ReadOk(in_reply_to = msg_id, messages = messages))
       } yield ()
     case Topology(msg_id, _) =>
@@ -59,5 +68,5 @@ object MainA extends ZIOAppDefault {
   }
 
   val run =
-    handler.provide(MaelstromRuntime.live, ZLayer(Ref.make(Set.empty[Int])))
+    handler.provide(MaelstromRuntime.live, State.live)
 }
