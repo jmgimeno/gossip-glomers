@@ -19,3 +19,9 @@ Playing with [Gossip Glomers Challenges](https://fly.io/dist-sys/) using [zio-ma
 ```shell
 ./maelstrom test -w broadcast --bin ~/Projects-Scala/gossip-glomers/launchers/broadcastA.sh --node-count 1 --time-limit 20 --rate 10
 ```
+
+### Challenge #3b: Multi-Node Broadcast (ONGOING)
+
+```shell
+./maelstrom test -w broadcast --bin ~/Projects-Scala/gossip-glomers/launchers/broadcastB.sh --node-count 5 --time-limit 20 --rate 10
+```
